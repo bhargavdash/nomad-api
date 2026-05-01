@@ -101,4 +101,51 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   res.json({ deleted: true });
 });
 
+const updateStopSchema = z.object({
+  locked: z.boolean().optional(),
+  name: z.string().min(1).optional(),
+  description: z.string().optional(),
+  time: z.string().optional(),
+  ampm: z.enum(['AM', 'PM']).optional(),
+});
+
+// PATCH /api/v1/trips/:id/stops/:stopId — lock/edit a stop
+router.patch('/:id/stops/:stopId', authMiddleware, async (req, res) => {
+  const parsed = updateStopSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    return;
+  }
+
+  const stop = await tripService.updateStop(
+    req.userId!,
+    paramStr(req.params.id),
+    paramStr(req.params.stopId),
+    parsed.data,
+  );
+
+  if (!stop) {
+    res.status(404).json({ error: 'Stop not found' });
+    return;
+  }
+
+  res.json({ stop });
+});
+
+// DELETE /api/v1/trips/:id/stops/:stopId — remove a stop
+router.delete('/:id/stops/:stopId', authMiddleware, async (req, res) => {
+  const deleted = await tripService.deleteStop(
+    req.userId!,
+    paramStr(req.params.id),
+    paramStr(req.params.stopId),
+  );
+
+  if (!deleted) {
+    res.status(404).json({ error: 'Stop not found' });
+    return;
+  }
+
+  res.json({ deleted: true });
+});
+
 export default router;

@@ -87,7 +87,6 @@ export async function updateTrip(
 }
 
 export async function deleteTrip(userId: string, tripId: string) {
-  // Verify ownership first
   const existing = await prisma.trip.findFirst({
     where: { id: tripId, userId },
   });
@@ -96,4 +95,33 @@ export async function deleteTrip(userId: string, tripId: string) {
   return prisma.trip.delete({
     where: { id: tripId },
   });
+}
+
+export async function updateStop(
+  userId: string,
+  tripId: string,
+  stopId: string,
+  data: { locked?: boolean; name?: string; description?: string; time?: string; ampm?: string },
+) {
+  // Verify the stop belongs to a trip owned by this user
+  const stop = await prisma.stop.findFirst({
+    where: { id: stopId, tripId },
+    include: { trip: { select: { userId: true } } },
+  });
+  if (!stop || stop.trip.userId !== userId) return null;
+
+  return prisma.stop.update({
+    where: { id: stopId },
+    data,
+  });
+}
+
+export async function deleteStop(userId: string, tripId: string, stopId: string) {
+  const stop = await prisma.stop.findFirst({
+    where: { id: stopId, tripId },
+    include: { trip: { select: { userId: true } } },
+  });
+  if (!stop || stop.trip.userId !== userId) return null;
+
+  return prisma.stop.delete({ where: { id: stopId } });
 }
