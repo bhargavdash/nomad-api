@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  displayName String?  @map("display_name")
+  avatarUrl   String?  @map("avatar_url")
+  email       String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  trips Trip[]
+
+  @@map("profiles")
+}
+
+model Trip {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  destination     String
+  dateFrom        String?  @map("date_from")
+  dateTo          String?  @map("date_to")
+  durationDays    Int?     @map("duration_days")
+  travelers       String?
+  vibes           String[]
+  accommodation   String?
+  pace            String?
+  budget          String?
+  preferences     String?
+  status          String   @default("researching")
+  statsPlaces     Int      @default(0) @map("stats_places")
+  statsTips       Int      @default(0) @map("stats_tips")
+  statsPhotoStops Int      @default(0) @map("stats_photo_stops")
+  emoji           String?
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  user        Profile        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  days        ItineraryDay[]
+  stops       Stop[]
+  researchJob ResearchJob?
+
+  @@map("trips")
+}
+
+model ItineraryDay {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tripId      String   @map("trip_id") @db.Uuid
+  dayNumber   Int      @map("day_number")
+  city        String
+  title       String
+  description String?
+  highlights  String[]
+  stopCount   Int      @default(0) @map("stop_count")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  trip  Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  stops Stop[]
+
+  @@unique([tripId, dayNumber], name: "trip_day_unique")
+  @@map("itinerary_days")
+}
+
+model Stop {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dayId       String   @map("day_id") @db.Uuid
+  tripId      String   @map("trip_id") @db.Uuid
+  sortOrder   Int      @map("sort_order")
+  time        String
+  ampm        String
+  duration    String
+  name        String
+  description String?
+  source      String
+  tags        String[]
+  locked      Boolean  @default(false)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  day  ItineraryDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  trip Trip         @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@map("stops")
+}
+
+model ResearchJob {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tripId          String    @unique @map("trip_id") @db.Uuid
+  status          String    @default("pending")
+  phase           Int       @default(0)
+  progress        Int       @default(0)
+  message         String?
+  statsPlaces     Int       @default(0) @map("stats_places")
+  statsTips       Int       @default(0) @map("stats_tips")
+  statsPhotoStops Int       @default(0) @map("stats_photo_stops")
+  discoveries     Json      @default("[]")
+  error           String?
+  startedAt       DateTime? @map("started_at") @db.Timestamptz
+  completedAt     DateTime? @map("completed_at") @db.Timestamptz
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@map("research_jobs")
+}
+
+model TrendingDestination {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  country   String
+  duration  String?
+  signal    String?
+  emoji     String?
+  bgColors  String[] @map("bg_colors")
+  sortOrder Int      @default(0) @map("sort_order")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("trending_destinations")
+}
+
+model Insight {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title          String
+  body           String?
+  source         String?
+  icon           String?
+  destinationTag String?  @map("destination_tag")
+  tags           String[]
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("insights")
+}
