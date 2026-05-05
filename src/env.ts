@@ -5,9 +5,6 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
-  // Used by authMiddleware to verify Supabase user session JWTs
-  SUPABASE_JWT_SECRET: z.string().min(1),
-
   // Prisma database connection
   DATABASE_URL: z.string().min(1),
 
