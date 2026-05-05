@@ -31,7 +31,18 @@ app.use('/api/v1', feedRoutes); // /trending, /insights
 // Error handler
 app.use(errorHandler);
 
-app.listen(env.PORT, () => {
+const server = app.listen(env.PORT, () => {
   console.log(`[nomad-api] Server running on http://localhost:${env.PORT}`);
   console.log(`[nomad-api] Environment: ${env.NODE_ENV}`);
+});
+
+server.on('error', (err: NodeJS.ErrnoException) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(
+      `[nomad-api] Port ${env.PORT} is already in use. Kill the process using it and retry.`,
+    );
+  } else {
+    console.error('[nomad-api] Server error:', err.message);
+  }
+  process.exit(1);
 });
