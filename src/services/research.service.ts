@@ -13,3 +13,15 @@ export async function updateResearchJob(tripId: string, data: Prisma.ResearchJob
     data,
   });
 }
+
+// On server boot: mark any jobs that were mid-flight when the server died as failed.
+// Prevents the frontend from polling forever after a restart.
+export async function recoverStaleJobs() {
+  const result = await prisma.researchJob.updateMany({
+    where: { status: { in: ['researching', 'building'] } },
+    data: { status: 'failed', error: 'Server restarted unexpectedly' },
+  });
+  if (result.count > 0) {
+    console.log(`[nomad-api] Recovered ${result.count} stale research job(s) → failed`);
+  }
+}

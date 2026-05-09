@@ -36,16 +36,24 @@ const createTripSchema = z.object({
 
 // POST /api/v1/trips — create trip + start research
 router.post('/', authMiddleware, async (req, res) => {
+  console.log('[POST /trips] userId:', req.userId);
+  console.log('[POST /trips] body:', JSON.stringify(req.body, null, 2));
+
   const parsed = createTripSchema.safeParse(req.body);
   if (!parsed.success) {
+    console.warn('[POST /trips] Validation failed:', parsed.error.flatten());
     res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     return;
   }
 
+  console.log('[POST /trips] Validated data:', JSON.stringify(parsed.data, null, 2));
+
   const { trip, researchJob } = await tripService.createTrip(req.userId!, parsed.data);
 
-  // Kick off the mock research worker (async, non-blocking)
-  startResearchWorker(trip.id, trip.destination);
+  console.log('[POST /trips] Created trip id:', trip.id, '| researchJob id:', researchJob.id);
+
+  // Kick off the research worker (async, non-blocking)
+  startResearchWorker(trip.id, parsed.data);
 
   res.status(201).json({ trip, research_job: researchJob });
 });

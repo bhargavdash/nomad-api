@@ -1,5 +1,6 @@
 import { prisma } from '../db/client.js';
 import type { Prisma } from '@prisma/client';
+import type { CreateTripBody } from '../types/index.js';
 import {
   MOCK_PHASES,
   MOCK_DISCOVERIES,
@@ -8,13 +9,28 @@ import {
   getMockEmoji,
 } from '../services/ai.service.js';
 
-/**
- * Starts a mock research worker for a given trip.
- * Simulates AI research by updating research_jobs progress in phases,
- * then writes mock itinerary data to the DB.
- */
-export function startResearchWorker(tripId: string, destination: string): void {
-  console.log(`[ResearchWorker] Starting mock research for trip ${tripId}`);
+export function startResearchWorker(tripId: string, tripData: CreateTripBody): void {
+  const { destination } = tripData;
+
+  console.log(`[ResearchWorker] Starting research for trip ${tripId}`);
+  console.log(
+    `[ResearchWorker] Context:`,
+    JSON.stringify(
+      {
+        destination,
+        dates: { from: tripData.date_from, to: tripData.date_to },
+        duration_days: tripData.duration_days,
+        travelers: tripData.travelers,
+        vibes: tripData.vibes,
+        accommodation: tripData.accommodation,
+        pace: tripData.pace,
+        budget: tripData.budget,
+        preferences: tripData.preferences,
+      },
+      null,
+      2,
+    ),
+  );
 
   // Update job to researching
   updateJob(tripId, {

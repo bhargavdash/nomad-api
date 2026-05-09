@@ -2,6 +2,7 @@ import { env } from './env.js';
 import express from 'express';
 import cors from 'cors';
 import { errorHandler } from './middleware/error.js';
+import { recoverStaleJobs } from './services/research.service.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -30,6 +31,11 @@ app.use('/api/v1', feedRoutes); // /trending, /insights
 
 // Error handler
 app.use(errorHandler);
+
+// Recover any jobs that were in-flight when the server last died
+recoverStaleJobs().catch((err) => {
+  console.error('[nomad-api] Failed to recover stale research jobs:', err);
+});
 
 const server = app.listen(env.PORT, () => {
   console.log(`[nomad-api] Server running on http://localhost:${env.PORT}`);
