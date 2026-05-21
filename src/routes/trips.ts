@@ -52,8 +52,8 @@ router.post('/', authMiddleware, async (req, res) => {
 
   console.log('[POST /trips] Created trip id:', trip.id, '| researchJob id:', researchJob.id);
 
-  // Kick off the research worker (async, non-blocking)
-  startResearchWorker(trip.id, parsed.data);
+  // Kick off the research worker (async, non-blocking — fire & forget)
+  void startResearchWorker(trip.id, req.userId!, parsed.data);
 
   res.status(201).json({ trip, research_job: researchJob });
 });
