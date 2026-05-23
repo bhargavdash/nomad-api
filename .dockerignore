@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.env
+.env.*
+*.log
+.git/
+.gitignore
+.claude/
+.vscode/
+README.md
+FRONTEND_INTEGRATION_PLAN.md
