@@ -3,6 +3,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+ENV HUSKY=0
+
 # Install dependencies first (layer-cached until package.json changes)
 COPY package*.json ./
 COPY prisma ./prisma/
@@ -20,6 +22,8 @@ RUN npm run build
 FROM node:20-alpine AS production
 
 WORKDIR /app
+
+ENV HUSKY=0
 
 # Install production deps only
 COPY package*.json ./
