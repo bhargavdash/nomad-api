@@ -28,7 +28,7 @@ ENV HUSKY=0
 # Install production deps only
 COPY package*.json ./
 COPY prisma ./prisma/
-RUN npm ci --omit=dev
+RUN npm pkg delete scripts.prepare && npm ci --omit=dev
 
 # Re-generate Prisma client against the production node_modules
 RUN npx prisma generate
