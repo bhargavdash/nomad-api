@@ -35,7 +35,7 @@ export async function startResearchWorker(
     vibes: tripData.vibes ?? [],
     accommodation: tripData.accommodation ?? 'Hotel',
     pace: tripData.pace ?? 'Balanced',
-    budget: tripData.budget ?? '$$',
+    budget: tripData.budget ?? 'Medium',
     preferences: tripData.preferences ?? null,
   };
 

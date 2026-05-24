@@ -11,7 +11,7 @@ export type AccommodationType =
 
 export type PaceType = 'Slow & Soulful' | 'Balanced' | 'Action-Packed';
 
-export type BudgetTier = '$' | '$$' | '$$$' | '$$$$';
+export type BudgetTier = 'Low' | 'Medium' | 'High' | 'Very-High';
 
 export type TripStatus = 'researching' | 'ready' | 'active' | 'completed' | 'archived';
 

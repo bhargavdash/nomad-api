@@ -30,7 +30,7 @@ const createTripSchema = z.object({
     ])
     .optional(),
   pace: z.enum(['Slow & Soulful', 'Balanced', 'Action-Packed']).optional(),
-  budget: z.enum(['$', '$$', '$$$', '$$$$']).optional(),
+  budget: z.enum(['Low', 'Medium', 'High', 'Very-High']).optional(),
   preferences: z.string().optional(),
 });
 
