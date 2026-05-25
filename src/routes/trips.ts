@@ -87,10 +87,9 @@ router.get('/:id/full', authMiddleware, async (req, res) => {
 
 // PATCH /api/v1/trips/:id — update trip
 router.patch('/:id', authMiddleware, async (req, res) => {
-  const { status, emoji } = req.body;
+  const { status } = req.body;
   const updated = await tripService.updateTrip(req.userId!, paramStr(req.params.id), {
     status,
-    emoji,
   });
   if (!updated) {
     res.status(404).json({ error: 'Trip not found' });
