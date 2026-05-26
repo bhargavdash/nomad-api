@@ -69,11 +69,7 @@ export async function getTripFull(userId: string, tripId: string) {
   return { trip: tripData, days };
 }
 
-export async function updateTrip(
-  userId: string,
-  tripId: string,
-  data: { status?: string; emoji?: string },
-) {
+export async function updateTrip(userId: string, tripId: string, data: { status?: string }) {
   // Verify ownership first
   const existing = await prisma.trip.findFirst({
     where: { id: tripId, userId },

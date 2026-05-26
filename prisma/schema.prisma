@@ -37,7 +37,12 @@ model Trip {
   statsPlaces     Int      @default(0) @map("stats_places")
   statsTips       Int      @default(0) @map("stats_tips")
   statsPhotoStops Int      @default(0) @map("stats_photo_stops")
-  emoji           String?
+  // Trip-level planning surface (Tier 2) — written by the Python agent.
+  routeSummary      String?  @map("route_summary")
+  transportStrategy String?  @map("transport_strategy")
+  seasonalTips      String[] @map("seasonal_tips")
+  stayByCity        Json?    @map("stay_by_city")
+  budgetEstimate    String?  @map("budget_estimate")
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
