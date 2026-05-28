@@ -3,6 +3,52 @@
     "supabase": {
       "type": "http",
       "url": "https://mcp.supabase.com/mcp?project_ref=qtqignacbrwhblgjbxat"
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
     }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npm run build)",
+      "Bash(npm run dev)",
+      "Bash(npm run format)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx prisma migrate dev*)",
+      "Bash(npx prisma db push)",
+      "Bash(npx prisma generate)",
+      "Bash(npx prisma db seed)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/block-env.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit(src/**/*.ts)|Write(src/**/*.ts)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx tsc --noEmit"
+          },
+          {
+            "type": "command",
+            "command": "npm run lint"
+          }
+        ]
+      }
+    ]
   }
 }

@@ -1,3 +1,9 @@
+---
+name: add-ai-agent
+description: Workflow for adding a new async AI background worker in nomad-api — types, mock data, Prisma model, worker, polling endpoint, and trigger wiring. Use when adding a new background job or mock AI phase.
+user-invocable: false
+---
+
 # Skill: Add a New AI Agent / Background Worker
 
 Use this workflow when adding a new AI-powered background process (like the research worker that generates itineraries).
