@@ -1,3 +1,9 @@
+---
+name: add-route
+description: Step-by-step workflow for adding a new Express route in nomad-api — Zod schema, service function, route handler, index mounting, and api-specs.md update. Use when adding any new endpoint.
+user-invocable: false
+---
+
 # Skill: Add a New API Route
 
 Use this workflow when adding a new endpoint to the nomad-api.
