@@ -37,6 +37,9 @@ model Trip {
   statsPlaces     Int      @default(0) @map("stats_places")
   statsTips       Int      @default(0) @map("stats_tips")
   statsPhotoStops Int      @default(0) @map("stats_photo_stops")
+  // City-led imagery (resolved server-side from Wikipedia, cached in the DB).
+  heroImageUrl     String?   @map("hero_image_url")
+  imagesResolvedAt DateTime? @map("images_resolved_at") @db.Timestamptz
   // Trip-level planning surface (Tier 2) — written by the Python agent.
   routeSummary      String?  @map("route_summary")
   transportStrategy String?  @map("transport_strategy")
@@ -63,6 +66,7 @@ model ItineraryDay {
   description String?
   highlights  String[]
   stopCount   Int      @default(0) @map("stop_count")
+  imageUrl    String?  @map("image_url")
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   trip  Trip   @relation(fields: [tripId], references: [id], onDelete: Cascade)
