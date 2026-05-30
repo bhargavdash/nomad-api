@@ -27,7 +27,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/profile', profileRoutes);
 app.use('/api/v1/trips', tripRoutes);
 app.use('/api/v1/trips', researchRoutes); // /trips/:id/research
-app.use('/api/v1', feedRoutes); // /trending, /insights
+app.use('/api/v1', feedRoutes); // /trending
 
 // Error handler
 app.use(errorHandler);

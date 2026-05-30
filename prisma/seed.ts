@@ -2,106 +2,168 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// SA-8: trending is LLM-driven, refreshed seasonally by nomad-agent.
+// This seed inserts a single "bootstrap" cache row so the first deploy
+// has something to serve while the agent populates the real season key.
+// Production traffic will trigger an async refresh on first hit.
 async function seed() {
-  console.log('Seeding trending destinations...');
+  console.log('Seeding bootstrap trending_cache row...');
 
-  await prisma.trendingDestination.deleteMany();
-  await prisma.trendingDestination.createMany({
-    data: [
-      {
-        name: 'Tokyo',
-        country: 'Japan',
-        duration: '5–10 days',
-        signal: '🔥 Trending this week',
-        emoji: '🗼',
-        bgColors: ['#1a1a2e', '#16213e'],
-        sortOrder: 1,
+  await prisma.trendingCache.deleteMany();
+  await prisma.trendingCache.create({
+    data: {
+      seasonKey: 'bootstrap',
+      season: 'bootstrap',
+      year: 0,
+      payload: {
+        season: 'bootstrap',
+        year: 0,
+        india: [
+          {
+            name: 'Goa',
+            country: 'India',
+            duration: '4-6 days',
+            blurb: 'Beach bars, Portuguese churches, and motorbike sunsets.',
+            vibe_tags: ['beach', 'nightlife'],
+          },
+          {
+            name: 'Jaipur',
+            country: 'India',
+            duration: '3-5 days',
+            blurb: 'Pink City forts and bazaars steeped in Rajput history.',
+            vibe_tags: ['heritage', 'culture'],
+          },
+          {
+            name: 'Manali',
+            country: 'India',
+            duration: '5-7 days',
+            blurb: 'Snow peaks, riverside cafes, and trails into the Beas valley.',
+            vibe_tags: ['mountains', 'adventure'],
+          },
+          {
+            name: 'Udaipur',
+            country: 'India',
+            duration: '3-4 days',
+            blurb: 'Lake palaces, rooftop dinners, and Mewar painting workshops.',
+            vibe_tags: ['romance', 'heritage'],
+          },
+          {
+            name: 'Rishikesh',
+            country: 'India',
+            duration: '4-6 days',
+            blurb: 'Ganga ghats, yoga, and rafting through Himalayan foothills.',
+            vibe_tags: ['spiritual', 'adventure'],
+          },
+          {
+            name: 'Hampi',
+            country: 'India',
+            duration: '3-5 days',
+            blurb: 'Ruined Vijayanagara temples scattered through boulder-strewn hills.',
+            vibe_tags: ['heritage', 'offbeat'],
+          },
+          {
+            name: 'Pondicherry',
+            country: 'India',
+            duration: '3-4 days',
+            blurb: 'French quarters, surf breaks, and slow Tamil-Mediterranean food.',
+            vibe_tags: ['coastal', 'food'],
+          },
+          {
+            name: 'Spiti',
+            country: 'India',
+            duration: '7-9 days',
+            blurb: 'High-altitude desert monasteries above the tree line.',
+            vibe_tags: ['offbeat', 'adventure'],
+          },
+          {
+            name: 'Munnar',
+            country: 'India',
+            duration: '4-5 days',
+            blurb: 'Tea estates, mist-cooled hill stations, and Western Ghats trails.',
+            vibe_tags: ['nature', 'romance'],
+          },
+          {
+            name: 'Andaman Islands',
+            country: 'India',
+            duration: '6-8 days',
+            blurb: 'Reef dives, white-sand beaches, and slow island-hopping.',
+            vibe_tags: ['beach', 'diving'],
+          },
+        ],
+        international: [
+          {
+            name: 'Bali',
+            country: 'Indonesia',
+            duration: '7-10 days',
+            blurb: 'Ubud rice terraces, Uluwatu sunsets, and reef-snorkelling islets.',
+            vibe_tags: ['beach', 'wellness'],
+          },
+          {
+            name: 'Bangkok',
+            country: 'Thailand',
+            duration: '4-6 days',
+            blurb: 'Street-food canals, rooftop bars, and weekend megamarkets.',
+            vibe_tags: ['food', 'nightlife'],
+          },
+          {
+            name: 'Singapore',
+            country: 'Singapore',
+            duration: '3-5 days',
+            blurb: 'Hawker stalls, Gardens by the Bay, and a Universal Studios layover.',
+            vibe_tags: ['family', 'food'],
+          },
+          {
+            name: 'Dubai',
+            country: 'UAE',
+            duration: '4-6 days',
+            blurb: 'Desert dunes, skyline brunches, and souks of old Deira.',
+            vibe_tags: ['luxury', 'family'],
+          },
+          {
+            name: 'Vietnam',
+            country: 'Vietnam',
+            duration: '10-14 days',
+            blurb: 'Hanoi pho, Ha Long Bay junks, and Mekong delta home-stays.',
+            vibe_tags: ['food', 'culture'],
+          },
+          {
+            name: 'Sri Lanka',
+            country: 'Sri Lanka',
+            duration: '8-10 days',
+            blurb: 'Hill-country trains, Sigiriya, and southern surf beaches.',
+            vibe_tags: ['nature', 'culture'],
+          },
+          {
+            name: 'Turkey',
+            country: 'Turkey',
+            duration: '8-12 days',
+            blurb: 'Istanbul bazaars and Cappadocia balloon dawns.',
+            vibe_tags: ['heritage', 'romance'],
+          },
+          {
+            name: 'Georgia',
+            country: 'Georgia',
+            duration: '7-10 days',
+            blurb: 'Caucasus peaks, Tbilisi wine bars, and ancient cave cities.',
+            vibe_tags: ['offbeat', 'mountains'],
+          },
+          {
+            name: 'Japan',
+            country: 'Japan',
+            duration: '10-14 days',
+            blurb: 'Tokyo neon, Kyoto temples, and shinkansen between them.',
+            vibe_tags: ['heritage', 'food'],
+          },
+          {
+            name: 'Maldives',
+            country: 'Maldives',
+            duration: '5-7 days',
+            blurb: 'Overwater villas, atoll diving, and pure-blue lagoon time.',
+            vibe_tags: ['beach', 'luxury'],
+          },
+        ],
       },
-      {
-        name: 'Bali',
-        country: 'Indonesia',
-        duration: '7–14 days',
-        signal: '🔥 4.2k trips planned',
-        emoji: '🌴',
-        bgColors: ['#134e5e', '#71b280'],
-        sortOrder: 2,
-      },
-      {
-        name: 'Morocco',
-        country: 'Africa',
-        duration: '8–12 days',
-        signal: '⬆ Up 34% this month',
-        emoji: '🕌',
-        bgColors: ['#c94b4b', '#4b134f'],
-        sortOrder: 3,
-      },
-      {
-        name: 'Kyoto',
-        country: 'Japan',
-        duration: '4–7 days',
-        signal: '🌸 Cherry blossom',
-        emoji: '⛩️',
-        bgColors: ['#2c3e50', '#4ca1af'],
-        sortOrder: 4,
-      },
-      {
-        name: 'Colombia',
-        country: 'South America',
-        duration: '10–14 days',
-        signal: '✦ Hidden gem pick',
-        emoji: '☕',
-        bgColors: ['#1c6758', '#d4c483'],
-        sortOrder: 5,
-      },
-    ],
-  });
-
-  console.log('Seeding insights...');
-
-  await prisma.insight.deleteMany();
-  await prisma.insight.createMany({
-    data: [
-      {
-        title: 'Best sunrise spot at Amber Fort',
-        body: 'Go before 9 AM to beat crowds. The east-facing walls catch golden light perfectly.',
-        source: 'youtube',
-        icon: '🌅',
-        destinationTag: 'Jaipur',
-        tags: ['Photo spots', 'Heritage'],
-      },
-      {
-        title: 'Lassiwala — the real one',
-        body: 'There are 3 fake Lassiwalas on MI Road. The original has no signage, just a crowd.',
-        source: 'reddit',
-        icon: '🥛',
-        destinationTag: 'Jaipur',
-        tags: ['Street food', "Locals' choice"],
-      },
-      {
-        title: 'Johari Bazaar hidden workshops',
-        body: 'Skip the main street. Turn into the second alley for block-printing workshops and better prices.',
-        source: 'blog',
-        icon: '🧵',
-        destinationTag: 'Jaipur',
-        tags: ['Handicrafts', 'Hidden gems'],
-      },
-      {
-        title: 'Sam Sand Dunes — skip the camel mafia',
-        body: 'Book through your hotel, not the touts at the entrance. Sunset camps are worth it.',
-        source: 'reddit',
-        icon: '🐪',
-        destinationTag: 'Jaisalmer',
-        tags: ['Pro tips', 'Desert'],
-      },
-      {
-        title: 'Mehrangarh Fort rooftop cafes ranked',
-        body: 'Stepwell Cafe has the best filter coffee. Nirvana for the best view. Jharokha for sunset.',
-        source: 'blog',
-        icon: '☕',
-        destinationTag: 'Jodhpur',
-        tags: ['Cafe hop', 'Fort views'],
-      },
-    ],
+    },
   });
 
   console.log('Seed complete!');

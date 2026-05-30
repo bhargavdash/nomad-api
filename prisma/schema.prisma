@@ -119,31 +119,17 @@ model ResearchJob {
   @@map("research_jobs")
 }
 
-model TrendingDestination {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String
-  country   String
-  duration  String?
-  signal    String?
-  emoji     String?
-  bgColors  String[] @map("bg_colors")
-  sortOrder Int      @default(0) @map("sort_order")
-  active    Boolean  @default(true)
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+// SA-8 (2026-05-30): replaces the old hand-seeded `trending_destinations` and
+// the (now-deleted) `insights` table. The agent service writes one row per
+// season into `trending_cache`; the Node API reads from here and triggers an
+// async refresh when the season key drifts. See nomad-board SA-8 spec.
+model TrendingCache {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  seasonKey   String   @unique @map("season_key") // e.g. "winter-2026"
+  season      String // "summer" | "monsoon" | "post-monsoon" | "winter"
+  year        Int
+  payload     Json // TrendingPayload — { india: [...10], international: [...10] }
+  refreshedAt DateTime @default(now()) @map("refreshed_at") @db.Timestamptz
 
-  @@map("trending_destinations")
-}
-
-model Insight {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title          String
-  body           String?
-  source         String?
-  icon           String?
-  destinationTag String?  @map("destination_tag")
-  tags           String[]
-  active         Boolean  @default(true)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  @@map("insights")
+  @@map("trending_cache")
 }
