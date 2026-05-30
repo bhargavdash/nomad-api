@@ -49,16 +49,19 @@ The server runs at `http://localhost:3000`.
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/health` | No | Health check |
+| `POST` | `/api/v1/auth/sync` | Yes | Upsert profile after login |
 | `GET` | `/api/v1/auth/me` | Yes | Current user profile |
 | `GET` | `/api/v1/profile` | Yes | Get profile |
 | `PATCH` | `/api/v1/profile` | Yes | Update profile |
 | `POST` | `/api/v1/trips` | Yes | Create trip + start AI research |
-| `GET` | `/api/v1/trips` | Yes | List user's trips |
+| `GET` | `/api/v1/trips` | Yes | List user's trips (optional `?status=`) |
 | `GET` | `/api/v1/trips/:id` | Yes | Get trip summary |
-| `GET` | `/api/v1/trips/:id/full` | Yes | Get trip with itinerary |
+| `GET` | `/api/v1/trips/:id/full` | Yes | Get trip with itinerary days + stops |
 | `PATCH` | `/api/v1/trips/:id` | Yes | Update trip |
 | `DELETE` | `/api/v1/trips/:id` | Yes | Delete trip |
-| `GET` | `/api/v1/trips/:id/research` | Yes | Poll research progress |
+| `GET` | `/api/v1/trips/:id/research` | Yes | Poll AI research progress |
+| `PATCH` | `/api/v1/trips/:id/stops/:stopId` | Yes | Edit stop (name, time, locked) |
+| `DELETE` | `/api/v1/trips/:id/stops/:stopId` | Yes | Delete stop |
 | `GET` | `/api/v1/trending` | No | Trending destinations |
 | `GET` | `/api/v1/insights` | No | Travel insights feed |
 
@@ -110,3 +113,5 @@ See `.env.example` for required variables:
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase service role key
 - `SUPABASE_JWT_SECRET` — JWT secret for token verification
 - `DATABASE_URL` — Direct Postgres connection string
+- `AGENT_SERVICE_URL` — URL of the `nomad-agent` Python service (e.g. `http://localhost:8000`)
+- `INTERNAL_AGENT_SECRET` — Shared secret for Node → Python auth; must match `INTERNAL_AGENT_SECRET` in `nomad-agent`

@@ -1,6 +1,6 @@
 # Frontend Integration Plan — Nomad MVP
 
-> **Status:** active — Phase 1 in progress
+> **Status:** COMPLETE — all wiring done and confirmed in prod (2026-05-23)
 > **Owner:** Bhargav
 > **Started:** 2026-05-20
 > **Reference:** `AI_INTEGRATION_PLAN.md` (architecture), `nomad-agent/HANDOFF.md` (agent quality pass), `nomad-agent/BENCHMARK.md` + `nomad-agent/out/rajasthan-sprint7-benchmark.md` (quality verdict that triggered the pause)

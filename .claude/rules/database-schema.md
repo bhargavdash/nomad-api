@@ -46,7 +46,13 @@ Created by Supabase DB trigger on user signup.
 | preferences | String? | Free-text |
 | status | String | 'researching' / 'ready' / 'active' / 'completed' / 'archived' |
 | statsPlaces/statsTips/statsPhotoStops | Int | Denormalized counts |
-| emoji | String? | Destination emoji |
+| heroImageUrl | String? | City-lead image resolved from Wikipedia |
+| imagesResolvedAt | DateTime? | |
+| routeSummary | String? | Multi-city circuit from agent, e.g. "Jaipur → Jodhpur → Jaisalmer" |
+| transportStrategy | String? | Inter-city transport + drive-time notes from agent |
+| seasonalTips | String[] | Packing/weather/timing tips from agent |
+| stayByCity | Json? | e.g. `{ "Jaipur": "2 nights", "Jodhpur": "2 nights" }` |
+| budgetEstimate | String? | Local-currency estimate, e.g. "₹4,500–6,000/day (mid range)" |
 
 ### ItineraryDay
 | Field | Type | Notes |
@@ -59,6 +65,7 @@ Created by Supabase DB trigger on user signup.
 | description | String? | Day summary |
 | highlights | String[] | Key attractions |
 | stopCount | Int | Denormalized |
+| imageUrl | String? | Day-level image URL |
 
 **Unique constraint**: `(tripId, dayNumber)`
 

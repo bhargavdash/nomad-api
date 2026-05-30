@@ -161,7 +161,7 @@ Response: { insights: Insight[] }
 
 ---
 
-## Phase 2 Endpoints (not yet built)
+## Planned Endpoints (not yet built)
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -191,9 +191,16 @@ Response: { insights: Insight[] }
   statsPlaces:     number
   statsTips:       number
   statsPhotoStops: number
-  emoji:           string | null
-  createdAt:       string
-  updatedAt:       string
+  // Tier 2 — written by the Python agent:
+  routeSummary:      string | null   // e.g. "Jaipur → Jodhpur → Jaisalmer → Udaipur"
+  transportStrategy: string | null   // transport notes with drive times
+  seasonalTips:      string[]        // packing/weather/timing tips
+  stayByCity:        object | null   // { "Jaipur": "2 nights", ... }
+  budgetEstimate:    string | null   // e.g. "₹4,500–6,000/day (mid range)"
+  // Image fields (resolved server-side from Wikipedia):
+  heroImageUrl:      string | null
+  createdAt:         string
+  updatedAt:         string
 }
 ```
 
@@ -241,23 +248,24 @@ Response: { insights: Insight[] }
 
 ---
 
-## Implementation Phases
+## Implementation Status
 
-### Phase 1 — MVP (current)
+### Done
 - [x] All trip CRUD endpoints
-- [x] Research polling with mock AI worker
+- [x] Research polling — live Python agent phases (not mock)
 - [x] Trending + insights feed
 - [x] JWT auth middleware
 - [x] POST /auth/sync — profile upsert on first login
 - [x] PATCH/DELETE /trips/:id/stops/:stopId
-- [ ] Connect real Supabase credentials + run migrations
+- [x] Node → Python agent wire (`POST AGENT_SERVICE_URL/agent/research`)
+- [x] Tier 2 trip-level fields written by agent (routeSummary, transportStrategy, seasonalTips, stayByCity, budgetEstimate)
 
-### Phase 2 — Real AI
-- [ ] Claude API itinerary generation (replace mock worker)
-- [ ] BullMQ + Redis job queue (replace setTimeout)
-- [ ] Full stop data for all 7 days (currently only Day 1)
+### Planned
 - [ ] POST /trips/:id/stops (add custom stop)
-- [ ] InTripCompanion endpoints (`/today`)
+- [ ] InTripCompanion endpoint (`GET /trips/:id/today` — today's day + stops)
+- [ ] PATCH /trips/:id/stops/:stopId/reorder (drag-to-reorder)
+- [ ] Rate limiting on trip creation (prevent agent spam)
+- [ ] Pagination on GET /trips (offset + limit)
 
 ---
 

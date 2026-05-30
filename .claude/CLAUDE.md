@@ -45,7 +45,7 @@ Express + TypeScript REST API backend for the Nomad mobile travel planning app. 
 | Database | Supabase Postgres |
 | Auth | Supabase Auth — JWT verification server-side |
 | Validation | Zod |
-| AI | Mock service (Phase 1) → Claude API via Anthropic SDK (Phase 2) |
+| AI | Real Python agent (`nomad-agent`) called via `POST AGENT_SERVICE_URL/agent/research` |
 | Dev tools | ESLint, Prettier, Husky, commitlint, lint-staged |
 
 ## API structure
@@ -79,7 +79,7 @@ Insight (standalone, seeded)
 
 - **Supabase Auth**: Mobile app handles OAuth flow client-side. Backend verifies Supabase JWT via `SUPABASE_JWT_SECRET`. Profile created by DB trigger on signup.
 - **Prisma ORM**: Type-safe queries, relation includes, automatic `@updatedAt`.
-- **Mock AI first**: Research worker uses `setTimeout` phases to simulate AI generation. Returns hardcoded Rajasthan itinerary. Real Claude API integration is Phase 2.
+- **Polyglot AI split**: Research worker POSTs to `nomad-agent` (Python/FastAPI/LangGraph) via `AGENT_SERVICE_URL`. Python service returns 202 and writes itinerary directly to Supabase. No AI logic lives in this Node service.
 - **Express v5**: Native async error handling — no need for `express-async-errors`.
 - **Ownership checks**: `findFirst({ where: { id, userId } })` before update/delete to ensure users only access their own trips.
 
@@ -130,20 +130,21 @@ nomad-api/
 └── .env.example
 ```
 
-## Development priorities
+## Development status
 
-### Phase 1 — MVP (current)
-- Mock AI research worker (hardcoded itinerary)
-- All CRUD endpoints for trips
+### Done
+- All CRUD endpoints for trips + stops
 - Supabase JWT auth middleware
 - Seeded trending destinations + insights feed
+- Node → Python agent wire (research.worker.ts POSTs to nomad-agent)
+- Stop PATCH/DELETE endpoints live
+- Tier 2 trip fields (routeSummary, transportStrategy, seasonalTips, stayByCity, budgetEstimate) in schema + served in /full
 
-### Phase 2 — AI + Polish
-- Real Claude API integration (Anthropic SDK)
-- BullMQ + Redis for job queues
-- Stop manipulation endpoints (lock/swap/move/delete)
-- InTripCompanion endpoints
-- Rate limiting, caching, image integration
+### Planned
+- InTripCompanion endpoint (GET /trips/:id/today)
+- Rate limiting on trip creation
+- Pagination on GET /trips
+- POST /trips/:id/stops (add custom stop)
 
 ## Reference priority
 
