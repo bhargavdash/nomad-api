@@ -8,6 +8,27 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
+## Automatic agent and skill routing
+
+These rules fire without user prompting — apply them whenever the trigger condition is met:
+
+| Trigger | Action |
+|---------|--------|
+| Edited any file in `src/routes/**` | Invoke `api-contract-reviewer` agent after edits complete |
+| Edited any file in `src/middleware/**` | Invoke `security-reviewer` agent after edits complete |
+| Adding a new API endpoint | Load `add-route` skill for the step-by-step workflow |
+| Adding a new background worker or AI job | Load `add-ai-agent` skill for the workflow |
+| Changing `prisma/schema.prisma` | Load `add-prisma-migration` skill; always run `npx prisma generate` after |
+| Any codebase question (architecture, file relationships, code navigation) | Run `graphify query "<question>"` before reading raw files |
+| After completing any file edits | Run `graphify update .` to sync the knowledge graph |
+
+## Context7 MCP
+
+`context7` MCP server is available for fetching up-to-date library docs. Use it when:
+- Answering questions about Express v5, Prisma, Zod, or Supabase SDK APIs
+- Checking correct method signatures before writing code that calls a library function
+- The user asks "how does X work in library Y"
+
 # Nomad API — Claude Code Development Guide
 
 ## What this service is
