@@ -1,9 +1,5 @@
-import type { Prisma } from '@prisma/client';
 import { prisma } from '../db/client.js';
 import type { CreateTripBody } from '../types/index.js';
-import { resolvePlaceImage } from './placeImage.service.js';
-
-type TripWithDays = Prisma.TripGetPayload<{ include: { days: { include: { stops: true } } } }>;
 
 export async function createTrip(userId: string, body: CreateTripBody) {
   const trip = await prisma.trip.create({
@@ -69,55 +65,12 @@ export async function getTripFull(userId: string, tripId: string) {
 
   if (!trip) return null;
 
-  // First read after the itinerary is built: resolve city-led imagery once and
-  // cache it in the DB, so every subsequent read ships URLs with zero latency.
-  if (!trip.imagesResolvedAt) {
-    await resolveTripImages(trip);
-  }
-
+  // Images are resolved once, at build time, by the agent (the single image
+  // writer) and stored on the trip/day rows. This read path never resolves or
+  // mutates imagery — so there is no read/write race and read latency is
+  // constant. A null URL is fine: the frontend shows a deterministic fallback.
   const { days, ...tripData } = trip;
   return { trip: tripData, days };
-}
-
-/**
- * Resolve the destination hero + one image per unique city (Wikipedia-backed),
- * persist them, and reflect the values into the passed-in trip object. Cities
- * are deduped so a city repeated across days resolves once. Best-effort: on any
- * failure the trip is still marked resolved (with whatever was found) so we
- * don't re-resolve on every read.
- */
-async function resolveTripImages(trip: TripWithDays): Promise<void> {
-  const uniqueCities = Array.from(new Set(trip.days.map((d) => d.city).filter(Boolean)));
-
-  const [heroUrl, cityUrls] = await Promise.all([
-    resolvePlaceImage(trip.destination),
-    Promise.all(uniqueCities.map((city) => resolvePlaceImage(city, trip.destination))),
-  ]);
-
-  const cityImage = new Map<string, string | null>();
-  uniqueCities.forEach((city, i) => cityImage.set(city, cityUrls[i]));
-
-  const resolvedAt = new Date();
-
-  await prisma.$transaction([
-    prisma.trip.update({
-      where: { id: trip.id },
-      data: { heroImageUrl: heroUrl, imagesResolvedAt: resolvedAt },
-    }),
-    ...trip.days.map((day) =>
-      prisma.itineraryDay.update({
-        where: { id: day.id },
-        data: { imageUrl: cityImage.get(day.city) ?? null },
-      }),
-    ),
-  ]);
-
-  // Reflect into the object we're about to return (avoids a re-read).
-  trip.heroImageUrl = heroUrl;
-  trip.imagesResolvedAt = resolvedAt;
-  trip.days.forEach((day) => {
-    day.imageUrl = cityImage.get(day.city) ?? null;
-  });
 }
 
 export async function updateTrip(userId: string, tripId: string, data: { status?: string }) {
