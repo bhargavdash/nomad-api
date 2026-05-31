@@ -8,7 +8,9 @@ const envSchema = z.object({
   // Prisma database connection
   DATABASE_URL: z.string().min(1),
 
-  // Optional — needed if we initialize a Supabase client server-side (Phase 2: storage, realtime, admin ops)
+  // Optional — reserved for future server-side Supabase use (realtime/admin).
+  // Place-image storage lives in nomad-agent (the single image writer); the
+  // Node API only serves the stored URLs and does not resolve/upload images.
   SUPABASE_URL: z.string().url().optional(),
   SUPABASE_SECRET_KEY: z.string().min(1).optional(), // sb_secret_... (replaces legacy service_role JWT)
 
