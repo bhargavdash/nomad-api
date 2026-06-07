@@ -1,8 +1,23 @@
 import { Router } from 'express';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import { authMiddleware } from '../middleware/auth.js';
 import * as tripService from '../services/trip.service.js';
 import { startResearchWorker } from '../workers/research.worker.js';
+import { devLog, devWarn } from '../utils/log.js';
+
+// Key by userId so each authenticated user gets their own independent 10/hour
+// bucket. IP-based keying is unfair for users behind shared NAT and less
+// meaningful for mobile clients that change IPs frequently. auth runs before
+// this limiter so req.userId is guaranteed to be populated.
+const tripCreationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => (req as typeof req & { userId?: string }).userId ?? req.ip ?? 'unknown',
+  message: { error: 'Trip creation limit reached. Try again in an hour.' },
+});
 
 const router = Router();
 
@@ -35,22 +50,22 @@ const createTripSchema = z.object({
 });
 
 // POST /api/v1/trips — create trip + start research
-router.post('/', authMiddleware, async (req, res) => {
-  console.log('[POST /trips] userId:', req.userId);
-  console.log('[POST /trips] body:', JSON.stringify(req.body, null, 2));
+router.post('/', authMiddleware, tripCreationLimiter, async (req, res) => {
+  devLog('[POST /trips] userId:', req.userId);
+  devLog('[POST /trips] body:', JSON.stringify(req.body, null, 2));
 
   const parsed = createTripSchema.safeParse(req.body);
   if (!parsed.success) {
-    console.warn('[POST /trips] Validation failed:', parsed.error.flatten());
+    devWarn('[POST /trips] Validation failed:', parsed.error.flatten());
     res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     return;
   }
 
-  console.log('[POST /trips] Validated data:', JSON.stringify(parsed.data, null, 2));
+  devLog('[POST /trips] Validated data:', JSON.stringify(parsed.data, null, 2));
 
   const { trip, researchJob } = await tripService.createTrip(req.userId!, parsed.data);
 
-  console.log('[POST /trips] Created trip id:', trip.id, '| researchJob id:', researchJob.id);
+  devLog('[POST /trips] Created trip id:', trip.id, '| researchJob id:', researchJob.id);
 
   // Kick off the research worker (async, non-blocking — fire & forget)
   void startResearchWorker(trip.id, req.userId!, parsed.data);

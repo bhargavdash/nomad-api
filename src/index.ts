@@ -1,6 +1,7 @@
 import { env } from './env.js';
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import { errorHandler } from './middleware/error.js';
 import { recoverStaleJobs } from './services/research.service.js';
 
@@ -13,8 +14,34 @@ import feedRoutes from './routes/feed.js';
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Required for Railway (and any reverse-proxy deployment): tells Express to
+// trust the X-Forwarded-For header so req.ip resolves to the real client IP.
+// Without this, every request looks like it comes from the proxy's internal IP
+// and all users share one rate-limit bucket — a single research session can
+// exhaust the global limit for everyone.
+app.set('trust proxy', 1);
+
+// CORS — only allow the web frontends (React Native is not a browser; it ignores CORS)
+app.use(
+  cors({
+    origin: ['https://nomad-web-ten.vercel.app', 'http://localhost:3000'],
+    credentials: true,
+  }),
+);
+
+// Rate limiting — protects free-tier LLM/API quotas from abuse.
+// 600 req / 15 min per real IP (~40 req/min sustained). Covers one active
+// research session (30 req/min polling) with comfortable headroom for other
+// API calls running concurrently.
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please slow down.' },
+});
+
+app.use(globalLimiter);
 app.use(express.json());
 
 // Health check
