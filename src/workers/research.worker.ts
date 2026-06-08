@@ -33,7 +33,7 @@ export async function startResearchWorker(
     duration_days: tripData.duration_days ?? 7,
     travelers: tripData.travelers ?? '2',
     vibes: tripData.vibes ?? [],
-    accommodation: tripData.accommodation ?? 'Hotel',
+    accommodation: tripData.accommodation ?? 'Budget Hotel',
     pace: tripData.pace ?? 'Balanced',
     budget: tripData.budget ?? 'Medium',
     preferences: tripData.preferences ?? null,

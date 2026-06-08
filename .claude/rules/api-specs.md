@@ -35,7 +35,7 @@ paths:
   duration_days?: number;
   travelers?: '1' | '2' | '3+' | 'large';
   vibes?: string[];               // e.g. ['Photo spots', 'Street food']
-  accommodation?: 'Boutique Villa' | 'Luxury Hotel' | 'Eco Lodge' | 'Homestay' | 'Airbnb' | 'Hostel' | 'Custom Stay';
+  accommodation?: 'Hostel' | 'Budget Hotel' | 'Luxury Hotel' | 'Airbnb / Homestay';
   pace?: 'Slow & Soulful' | 'Balanced' | 'Action-Packed';
   budget?: '$' | '$$' | '$$$' | '$$$$';
   preferences?: string;           // free-text

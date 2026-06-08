@@ -3,14 +3,7 @@
 // the 1-10 bound is enforced by the Zod schema in routes/trips.ts.
 export type TravelerCount = string;
 
-export type AccommodationType =
-  | 'Boutique Villa'
-  | 'Luxury Hotel'
-  | 'Eco Lodge'
-  | 'Homestay'
-  | 'Airbnb'
-  | 'Hostel'
-  | 'Custom Stay';
+export type AccommodationType = 'Hostel' | 'Budget Hotel' | 'Luxury Hotel' | 'Airbnb / Homestay';
 
 export type PaceType = 'Slow & Soulful' | 'Balanced' | 'Action-Packed';
 

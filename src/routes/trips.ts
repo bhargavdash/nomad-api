@@ -40,17 +40,7 @@ const createTripSchema = z.object({
     }, 'travelers must be between 1 and 10')
     .optional(),
   vibes: z.array(z.string()).optional(),
-  accommodation: z
-    .enum([
-      'Boutique Villa',
-      'Luxury Hotel',
-      'Eco Lodge',
-      'Homestay',
-      'Airbnb',
-      'Hostel',
-      'Custom Stay',
-    ])
-    .optional(),
+  accommodation: z.enum(['Hostel', 'Budget Hotel', 'Luxury Hotel', 'Airbnb / Homestay']).optional(),
   pace: z.enum(['Slow & Soulful', 'Balanced', 'Action-Packed']).optional(),
   budget: z.enum(['Low', 'Medium', 'High', 'Very-High']).optional(),
   preferences: z.string().optional(),
