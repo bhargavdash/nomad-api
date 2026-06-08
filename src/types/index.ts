@@ -1,4 +1,7 @@
-export type TravelerCount = '1' | '2' | '3+' | 'large';
+// Stringified integer count of travellers, "1".."10". Kept as a string to
+// match the Prisma `travelers String?` column and the Python agent wire format;
+// the 1-10 bound is enforced by the Zod schema in routes/trips.ts.
+export type TravelerCount = string;
 
 export type AccommodationType =
   | 'Boutique Villa'

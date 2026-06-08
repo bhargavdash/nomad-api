@@ -31,7 +31,14 @@ const createTripSchema = z.object({
   date_from: z.string().nullable().optional(),
   date_to: z.string().nullable().optional(),
   duration_days: z.number().optional(),
-  travelers: z.enum(['1', '2', '3+', 'large']).optional(),
+  travelers: z
+    .string()
+    .regex(/^\d+$/, 'travelers must be a positive integer')
+    .refine((v) => {
+      const n = Number(v);
+      return n >= 1 && n <= 10;
+    }, 'travelers must be between 1 and 10')
+    .optional(),
   vibes: z.array(z.string()).optional(),
   accommodation: z
     .enum([

@@ -56,7 +56,18 @@ export async function startResearchWorker(
 
     console.log(`[ResearchWorker] tripId=${tripId} → ${res.status} accepted by agent`);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Agent service unreachable';
+    // Node's global fetch throws an opaque "fetch failed" — the real reason
+    // (ECONNREFUSED, ENOTFOUND, etc.) lives on err.cause. Surface it plus the
+    // target URL so a connectivity issue is diagnosable from the stored error
+    // instead of a useless "fetch failed".
+    let message: string;
+    if (err instanceof Error) {
+      const cause = (err as Error & { cause?: { code?: string; message?: string } }).cause;
+      const detail = cause?.code ?? cause?.message;
+      message = detail ? `${err.message} (${detail}) → ${url}` : `${err.message} → ${url}`;
+    } else {
+      message = `Agent service unreachable → ${url}`;
+    }
     console.error(`[ResearchWorker] tripId=${tripId} → failed:`, message);
     await prisma.researchJob
       .update({
