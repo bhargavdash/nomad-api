@@ -46,6 +46,7 @@ model Trip {
   seasonalTips      String[] @map("seasonal_tips")
   stayByCity        Json?    @map("stay_by_city")
   budgetEstimate    String?  @map("budget_estimate")
+  currencyAdvice    String?  @map("currency_advice")
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
