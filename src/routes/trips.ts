@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import rateLimit from 'express-rate-limit';
 import { authMiddleware } from '../middleware/auth.js';
 import * as tripService from '../services/trip.service.js';
 import { startResearchWorker } from '../workers/research.worker.js';
@@ -15,7 +15,7 @@ const tripCreationLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => (req as typeof req & { userId?: string }).userId ?? ipKeyGenerator(req) ?? 'unknown',
+  keyGenerator: (req) => (req as typeof req & { userId?: string }).userId ?? req.ip ?? 'unknown',
   message: { error: 'Trip creation limit reached. Try again in an hour.' },
 });
 
@@ -168,4 +168,3 @@ router.delete('/:id/stops/:stopId', authMiddleware, async (req, res) => {
 });
 
 export default router;
-
